@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.atptour.com)",
+      "WebFetch(domain:montecarlotennismasters.com)",
+      "WebFetch(domain:www.olympics.com)",
+      "WebFetch(domain:thedakia.com)",
+      "WebFetch(domain:www.skysports.com)",
+      "WebFetch(domain:www.puntodebreak.com)",
+      "WebSearch",
+      "WebFetch(domain:www.tennis365.com)",
+      "WebFetch(domain:en.tennistemple.com)"
+    ]
+  }
+}
