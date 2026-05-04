@@ -9,7 +9,13 @@
       "WebFetch(domain:www.puntodebreak.com)",
       "WebSearch",
       "WebFetch(domain:www.tennis365.com)",
-      "WebFetch(domain:en.tennistemple.com)"
+      "WebFetch(domain:en.tennistemple.com)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\ALESSANDRO\\\\Documents\\\\GitHub\\\\tennis_analysis\" -Recurse)",
+      "Bash(Select-Object FullName, PSIsContainer)",
+      "Bash(Sort-Object FullName)",
+      "Bash(Format-Table -AutoSize)",
+      "WebFetch(domain:tennis.bzzoiro.com)",
+      "WebFetch(domain:medium.com)"
     ]
   }
 }
