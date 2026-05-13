@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building a Probabilistic Roland Garros 2026 Simulator in Python</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #fafaf8;
+      color: #1a1a1a;
+      line-height: 1.8;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #0a3d1f 0%, #1a6b3c 60%, #c8102e 100%);
+      color: #fff;
+      padding: 80px 24px 64px;
+      text-align: center;
+    }
+
+    .hero .tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 16px;
+      margin-bottom: 28px;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.9rem, 5vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.2;
+      max-width: 820px;
+      margin: 0 auto 20px;
+    }
+
+    .hero .subtitle {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 1.1rem;
+      opacity: 0.85;
+      max-width: 580px;
+      margin: 0 auto 36px;
+    }
+
+    .hero .meta {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 0.82rem;
+      opacity: 0.65;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Pipeline ribbon ──────────────────────────────────── */
+    .pipeline-ribbon {
+      background: #0a3d1f;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+
+    .pipe-step {
+      display: flex;
+      align-items: center;
+      color: #fff;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .pipe-step .num {
+      background: #c8102e;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .pipe-step .label { opacity: 0.9; white-space: nowrap; }
+
+    .pipe-arrow {
+      color: rgba(255,255,255,0.35);
+      margin: 0 16px;
+      font-size: 1rem;
+      align-self: center;
+    }
+
+    /* ── Article layout ───────────────────────────────────── */
+    .article {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    /* ── Section headings ─────────────────────────────────── */
+    h2 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      margin: 56px 0 16px;
+      color: #0a3d1f;
+      border-left: 4px solid #c8102e;
+      padding-left: 16px;
+      line-height: 1.3;
+    }
+
+    h3 {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 36px 0 10px;
+      color: #1a1a1a;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    p { margin-bottom: 1.2em; font-size: 1.05rem; }
+
+    /* ── Lead paragraph ───────────────────────────────────── */
+    .lead {
+      font-size: 1.22rem;
+      color: #333;
+      border-left: 3px solid #e0e0e0;
+      padding-left: 20px;
+      margin-bottom: 2em;
+      font-style: italic;
+    }
+
+    /* ── Design choice callout ────────────────────────────── */
+    .design-choice {
+      background: #f0f7f2;
+      border-left: 4px solid #1a6b3c;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 24px 0;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 0.93rem;
+      color: #1a3a27;
+    }
+
+    .design-choice strong {
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #1a6b3c;
+      margin-bottom: 6px;
+    }
+
+    /* ── Warning / limitation callout ────────────────────── */
+    .limitation {
+      background: #fff8f0;
+      border-left: 4px solid #c8102e;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 24px 0;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 0.93rem;
+      color: #3a1a1a;
+    }
+
+    .limitation strong {
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #c8102e;
+      margin-bottom: 6px;
+    }
+
+    /* ── Code blocks ──────────────────────────────────────── */
+    pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      margin: 20px 0 28px;
+    }
+
+    code {
+      background: #eef2ee;
+      color: #0a3d1f;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 0.88em;
+    }
+
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* ── Feature table ────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; margin: 24px 0 32px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 0.9rem;
+    }
+
+    thead tr { background: #0a3d1f; color: #fff; }
+    thead th { padding: 12px 16px; text-align: left; font-weight: 600; letter-spacing: 0.04em; }
+
+    tbody tr:nth-child(even) { background: #f5f5f2; }
+    tbody tr:nth-child(odd)  { background: #fff; }
+    tbody td { padding: 10px 16px; border-bottom: 1px solid #e8e8e4; }
+
+    tbody td:first-child {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.82rem;
+      color: #0a3d1f;
+      white-space: nowrap;
+    }
+
+    /* ── Results table ────────────────────────────────────── */
+    .results-table thead tr { background: #c8102e; }
+
+    .results-table tbody td:first-child {
+      font-family: 'Georgia', serif;
+      font-size: 0.9rem;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .results-table td.prob {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-weight: 700;
+      color: #0a3d1f;
+    }
+
+    .results-table td.high { background: rgba(26,107,60,0.15); }
+    .results-table td.mid  { background: rgba(26,107,60,0.07); }
+
+    /* ── Pipeline diagram ─────────────────────────────────── */
+    .pipeline-diagram {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 28px 32px;
+      margin: 28px 0;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 0.83rem;
+      line-height: 2;
+      color: #d4d4d4;
+    }
+
+    .pipeline-diagram .script   { color: #4ec9b0; font-weight: 700; }
+    .pipeline-diagram .arrow    { color: #569cd6; }
+    .pipeline-diagram .output   { color: #ce9178; }
+    .pipeline-diagram .comment  { color: #6a9955; }
+
+    /* ── Section divider ──────────────────────────────────── */
+    .divider {
+      border: none;
+      border-top: 1px solid #e0e0d8;
+      margin: 52px 0;
+    }
+
+    /* ── Equation display ─────────────────────────────────── */
+    .equation {
+      background: #f5f5f2;
+      border: 1px solid #e0e0d8;
+      border-radius: 8px;
+      padding: 18px 24px;
+      margin: 20px 0;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.95rem;
+      color: #1a1a1a;
+      text-align: center;
+    }
+
+    /* ── Step badge headers ───────────────────────────────── */
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 56px 0 16px;
+    }
+
+    .step-badge {
+      background: #c8102e;
+      color: #fff;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+
+    .step-header h2 {
+      margin: 0;
+      border: none;
+      padding: 0;
+      font-size: 1.45rem;
+    }
+
+    /* ── Limitations list ─────────────────────────────────── */
+    ul.limits {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0;
+    }
+
+    ul.limits li {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 1rem;
+    }
+
+    ul.limits li::before {
+      content: "×";
+      color: #c8102e;
+      font-weight: 700;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    footer {
+      background: #0a3d1f;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 32px 24px;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 0.82rem;
+    }
+
+    footer a { color: rgba(255,255,255,0.8); text-decoration: none; }
+
+    /* ── Function reference cards ────────────────────────── */
+    .fn-block {
+      border: 1px solid #e0e0d8;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 20px 0;
+      background: #fff;
+    }
+
+    .fn-sig {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .fn-module {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #1a6b3c;
+      padding: 3px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    .fn-name {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: #0a3d1f;
+      font-weight: 700;
+      background: none;
+      padding: 0;
+    }
+
+    .fn-desc {
+      font-size: 0.97rem;
+      color: #333;
+      margin-bottom: 14px;
+    }
+
+    .fn-io {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 0.88rem;
+      color: #555;
+      border-top: 1px solid #eee;
+      padding-top: 12px;
+    }
+
+    .fn-io div { display: flex; gap: 10px; align-items: flex-start; }
+
+    .io-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .io-label.in  { background: #e8f4fd; color: #1a6b9a; }
+    .io-label.out { background: #fef3e2; color: #b45309; }
+
+    /* ── Responsive ───────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .pipe-arrow { display: none; }
+      .pipe-step { width: 45%; margin: 6px; }
+      .step-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ HERO ══════════════════════════════════ -->
+<header class="hero">
+  <div class="tag">Data Science · Tennis Analytics</div>
+  <h1>Building a Probabilistic Roland Garros 2026 Simulator in Python</h1>
+  <p class="subtitle">
+    From 25 years of ATP match data to a full tournament probability matrix —
+    one machine-learning pipeline at a time.
+  </p>
+  <p class="meta">May 2026 &nbsp;·&nbsp; 10 min read</p>
+</header>
+
+<!-- ═══════════════════════════════ PIPELINE RIBBON ═══════════════════════════ -->
+<nav class="pipeline-ribbon">
+  <div class="pipe-step">
+    <span class="num">1</span>
+    <span class="label">JeffSackmann</span>
+  </div>
+  <span class="pipe-arrow">+</span>
+  <div class="pipe-step">
+    <span class="num">1b</span>
+    <span class="label">tennis-data.co.uk</span>
+  </div>
+  <span class="pipe-arrow">→</span>
+  <div class="pipe-step">
+    <span class="num">2</span>
+    <span class="label">Build Features</span>
+  </div>
+  <span class="pipe-arrow">→</span>
+  <div class="pipe-step">
+    <span class="num">3</span>
+    <span class="label">Train Model</span>
+  </div>
+  <span class="pipe-arrow">→</span>
+  <div class="pipe-step">
+    <span class="num">4</span>
+    <span class="label">Simulate</span>
+  </div>
+  <span class="pipe-arrow">→</span>
+  <div class="pipe-step">
+    <span class="num">5</span>
+    <span class="label">Streamlit App</span>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════ BODY ══════════════════════════════════ -->
+<main class="article">
+
+  <!-- INTRO -->
+  <p class="lead">
+    Every year, a few weeks before Roland Garros, tennis fans argue about who is going to win.
+    This project turns those intuitions into numbers — a full probability matrix for 128 players
+    across all 7 rounds of the tournament.
+  </p>
+
+  <p>
+    The goal is to answer a deceptively simple question: <em>given everything we know about each
+    player heading into Roland Garros 2026, what is the probability that each one wins the title?</em>
+    And not just the title — what are the odds each player survives the first round, reaches the
+    quarter-finals, makes the final?
+  </p>
+
+  <p>
+    To do that, we build a four-stage pipeline running entirely from the command line,
+    with a Streamlit dashboard as the final output.
+  </p>
+
+  <hr class="divider" />
+
+  <!-- WHY THIS APPROACH -->
+  <h2>Why This Approach?</h2>
+
+  <p>
+    Before diving in, it is worth explaining the philosophy — several alternative approaches exist,
+    and the choices made here are deliberate.
+  </p>
+
+  <h3>We model individual matches, not aggregate outcomes directly</h3>
+  <p>
+    Some tennis prediction systems jump straight to tournament winner odds using betting markets
+    or simple ranking heuristics. We instead estimate the probability of <em>each individual match</em>,
+    then compound those across seven rounds. This matters because a player who wins 65% of their
+    matches still only wins a 7-round bracket about 18–25% of the time. By modelling at the match
+    level, we see exactly how uncertainty accumulates — and we can ask counterfactual questions like
+    "what if Alcaraz draws Sinner in the quarter-finals?"
+  </p>
+
+  <h3>We use machine learning, not just Elo</h3>
+  <p>
+    The core predictor is XGBoost trained on 25 years of ATP matches. Pure Elo is elegant but
+    ignores surface specialisation, recent form, head-to-head history, and age trajectories.
+    XGBoost combines all of these into one calibrated probability estimate.
+  </p>
+
+  <div class="design-choice">
+    <strong>Design Choice</strong>
+    We use a single model trained on all surfaces, not separate per-surface models. Surface
+    specialisation is captured as a feature (<code>surface_elo_diff</code>) rather than a model split.
+    This avoids training on too few clay-only samples to fit a reliable model.
+  </div>
+
+  <h3>We simulate the bracket, not just rank players</h3>
+  <p>
+    The natural temptation after computing clay ratings is to rank players and call the top one the
+    favourite. But tournaments are not played on paper. Draw luck matters enormously. Monte Carlo
+    simulation makes draw luck explicit: we run 20,000 independent bracket realisations and count
+    how often each player wins. This approach is directly analogous to probabilistic Premier League
+    season simulators — except instead of league positions, we track tournament rounds.
+  </p>
+
+  <hr class="divider" />
+
+  <!-- STEP 1 -->
+  <div class="step-header">
+    <span class="step-badge">Step 1</span>
+    <h2><code>1_fetch_data.py</code> — 25 Years of ATP History</h2>
+  </div>
+
+  <p>
+    All match data comes from Jeff Sackmann's open <code>tennis_atp</code> repository on GitHub,
+    which contains ATP match records dating back to 1968. We use 2000–2024, giving approximately
+    74,000 matches. Each year is a separate CSV file downloaded once and cached locally.
+  </p>
+
+  <pre><code>python 1_fetch_data.py
+
+# Downloading matches: 100%|██████| 25/25
+# Loaded 74,906 matches (2000–2024)
+# Loaded 55,193 players</code></pre>
+
+  <p>
+    Each record contains: winner, loser, surface (Hard / Clay / Grass), tournament level
+    (Grand Slam, Masters, ATP 250…), the score, and both players' ATP rankings at match time.
+  </p>
+
+  <div class="design-choice">
+    <strong>Design Choice</strong>
+    We start at year 2000, not earlier. Pre-2000 rankings are sparser and the player population
+    differs significantly from the modern era. Twenty-five years gives ~75,000 matches — more
+    than enough to train a robust model while keeping the data relevant.
+  </div>
+
+  <hr class="divider" />
+
+  <!-- STEP 1b -->
+  <div class="step-header">
+    <span class="step-badge">Step 1b</span>
+    <h2><code>fetch_recent.py</code> — Supplementing with 2026 Clay Data</h2>
+  </div>
+
+  <p>
+    JeffSackmann's repository is updated manually and typically lags the current date by
+    several weeks. For Roland Garros 2026, that means the clay build-up season —
+    Monte-Carlo, Barcelona, Madrid, Rome — may only be partially available.
+    We supplement it with <strong>tennis-data.co.uk</strong>, which publishes results
+    within days of each match.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Source</th><th>Format</th><th>Player identifier</th><th>Clay matches (2026)</th><th>Latest date</th></tr></thead>
+      <tbody>
+        <tr><td>JeffSackmann/tennis_atp</td><td>CSV (GitHub)</td><td>numeric player_id</td><td>402</td><td>22 Apr 2026</td></tr>
+        <tr><td>tennis-data.co.uk</td><td>Excel (.xlsx)</td><td>name string ("Sinner J.")</td><td>378</td><td>3 May 2026</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    The critical difference is the player identifier. JeffSackmann uses stable numeric IDs
+    like <code>207989</code> (Jannik Sinner). tennis-data uses abbreviated name strings:
+    <code>"Sinner J."</code>. Before we can merge the two datasets, we must resolve every
+    tennis-data name into the corresponding JeffSackmann ID.
+  </p>
+
+  <h3>The Name Resolution Problem</h3>
+  <p>
+    tennis-data names follow the pattern <code>"Lastname F."</code> — and sometimes
+    <code>"Lastname F.M."</code> for double initials, or <code>"Two Part Last C."</code> for
+    hyphenated surnames. The resolver handles all cases in three fallback layers:
+  </p>
+
+  <pre><code>"Sinner J."        → parse → (last="sinner",  initial="j")  → exact match → 207989
+"Cerundolo J.M."   → parse → (last="cerundolo", initial="j")  → exact match → 126610
+"Ugo Carabelli C." → parse → (last="ugo carabelli", initial="c") → exact match
+"Unknwon P."       → parse → fuzzy match on last name → best candidate or -1</code></pre>
+
+  <div class="design-choice">
+    <strong>Design Choice — Three-Layer Resolution</strong>
+    <strong>1. (last_name, first_initial) exact match</strong> — works for 95%+ of players.<br />
+    <strong>2. Last-name-only</strong> — for surnames unique in the ATP, such as "Djokovic".<br />
+    <strong>3. Fuzzy match (cutoff 0.75)</strong> — catches accents and slight spelling differences,
+    e.g. "Müller" vs "Muller". Any match that fails all three layers is dropped with a warning
+    rather than guessing — we never inject a wrong player ID into the training data.
+  </div>
+
+  <h3>Deduplication</h3>
+  <p>
+    Some matches appear in both sources — JeffSackmann may have the early rounds of Madrid while
+    tennis-data has the full draw. After resolving IDs, we build a set of
+    <code>(winner_id, loser_id)</code> pairs already present in the JeffSackmann data and
+    exclude any tennis-data record that matches. This ensures each match is counted exactly once.
+  </p>
+
+  <pre><code>python 1_fetch_data.py
+
+# SOURCE 1 — JeffSackmann/tennis_atp (GitHub)
+# Loaded 75,984 matches (2000–2026)
+#   JeffSackmann 2026 clay matches: 402
+
+# SOURCE 2 — tennis-data.co.uk (2026 clay supplement)
+#   Downloading tennis-data 2026...
+#   Deduplicated: 363 → 89 new clay matches (removed 274 already in JeffSackmann)
+
+# Merged: 75,984 + 89 = 76,073 total matches
+# Saved to: data/raw/matches_combined.pkl</code></pre>
+
+  <hr class="divider" />
+
+  <!-- STEP 2 -->
+  <div class="step-header">
+    <span class="step-badge">Step 2</span>
+    <h2><code>2_build_features.py</code> — Engineering Player Ratings</h2>
+  </div>
+
+  <p>
+    Raw match results are not useful to a model. We need features that capture each player's
+    <em>current strength</em> just before each match is played. Four modules compute these features
+    under a strict <strong>no look-ahead constraint</strong>: every value is computed using only
+    matches that occurred before the one being labelled.
+  </p>
+
+  <h3>Elo Ratings</h3>
+  <p>
+    The classic chess rating system applied to tennis. Every player starts at 1500.
+    After each match, the winner gains points proportional to the upset magnitude and the loser
+    loses the same amount. We maintain two parallel Elo ratings per player:
+    a global one and a surface-specific one.
+  </p>
+
+  <div class="equation">
+    P(A beats B) = 1 / ( 1 + 10 <sup>( Elo_B − Elo_A ) / 400</sup> )
+  </div>
+
+  <p>
+    The clay Elo is particularly important for Roland Garros — it accumulates evidence exclusively
+    from clay-court matches and is the most stable long-run signal of clay court ability.
+  </p>
+
+  <h3>Head-to-Head Record</h3>
+  <p>
+    For each match we record how many times the winner has beaten the loser in all prior meetings.
+    When two players have never met, this defaults to 0.5 — no information either way.
+  </p>
+
+  <h3>Rolling Surface Win Rate</h3>
+  <p>
+    Using a 365-day rolling window, we compute each player's win rate specifically on the current
+    surface. A player on a 12-month hot streak on clay scores higher here than their long-run
+    Elo suggests.
+  </p>
+
+  <h3>Recent Form</h3>
+  <p>
+    Win rate across the last 20 matches on any surface. This captures whether a player is currently
+    healthy and confident — or going through a rough patch.
+  </p>
+
+  <p>The final feature set fed into the model:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>What it captures</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>elo_diff</td><td>Global long-run quality gap</td></tr>
+        <tr><td>surface_elo_diff</td><td>Surface-specific quality gap</td></tr>
+        <tr><td>rank_diff</td><td>Current ATP ranking gap</td></tr>
+        <tr><td>rank_points_diff</td><td>ATP points gap</td></tr>
+        <tr><td>p1_h2h_winrate</td><td>Historical head-to-head record</td></tr>
+        <tr><td>h2h_total</td><td>Reliability of the H2H record</td></tr>
+        <tr><td>surf_winrate_diff</td><td>12-month clay form differential</td></tr>
+        <tr><td>form_diff</td><td>Last 20 matches form differential</td></tr>
+        <tr><td>age_diff</td><td>Age gap between the two players</td></tr>
+        <tr><td>p1_surf_n / p2_surf_n</td><td>Sample size reliability indicators</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- STEP 3 -->
+  <div class="step-header">
+    <span class="step-badge">Step 3</span>
+    <h2><code>3_train_model.py</code> — Learning to Predict Matches</h2>
+  </div>
+
+  <h3>Dataset Symmetrisation</h3>
+  <p>
+    Each match record (winner, loser) is duplicated as (loser, winner) with the label flipped
+    from 1 to 0. This doubles the training set from ~74,000 to ~148,000 examples and forces
+    the model to learn symmetrically — it cannot exploit the fact that the "winner" column
+    always won.
+  </p>
+
+  <h3>Train / Validation Split</h3>
+  <p>
+    We train on 2000–2021 and validate on 2022–2024. This is a <strong>temporal split</strong>,
+    not a random split. Random splits would leak future information: a match from 2023 in the
+    training set would have Elo values that already absorbed 2023 results.
+  </p>
+
+  <h3>XGBoost Model</h3>
+  <p>
+    500 gradient-boosted trees, depth 4, learning rate 0.03. The logistic objective means
+    probabilities are meaningful — 0.65 means the model genuinely believes there is a 65% chance
+    player 1 wins, not just a ranked score.
+  </p>
+
+  <pre><code>python 3_train_model.py
+
+# Train: 127,188 rows  (2000–2021)
+# Val  :  17,958 rows  (2022–2024)
+#
+# Train accuracy : 0.686
+# Val   accuracy : 0.658   ← generalises well
+# Val   log-loss : 0.608
+# Val   Brier    : 0.211   ← well-calibrated probabilities</code></pre>
+
+  <h3>Live Player State</h3>
+  <p>
+    After training, we replay all 74,000 matches chronologically through a
+    <code>PlayerStateTracker</code>. This object maintains, for each of the 2,640 ATP players
+    ever recorded, their <em>current</em> state: Elo ratings, ATP rank, clay win rate, form,
+    and head-to-head records against every other player. This state is what powers predictions
+    for any future matchup.
+  </p>
+
+  <div class="design-choice">
+    <strong>Design Choice</strong>
+    The player state tracker is saved as <code>data/processed/player_states.pkl</code>.
+    This means <code>4_simulate_rg2026.py</code> does not need to replay 74,000 matches every
+    time — it loads instantly and goes straight to the simulation. Each file acts as a
+    checkpoint in the pipeline.
+  </div>
+
+  <hr class="divider" />
+
+  <!-- STEP 4 -->
+  <div class="step-header">
+    <span class="step-badge">Step 4</span>
+    <h2><code>4_simulate_rg2026.py</code> — The Monte Carlo Tournament</h2>
+  </div>
+
+  <h3>Selecting the Field</h3>
+  <p>
+    We take the top 128 active ATP players by current ranking. These are the tournament entrants.
+  </p>
+
+  <h3>Clay Strength Scoring</h3>
+  <p>
+    Before building the draw, we rank all 128 players by a composite <em>clay strength score</em>.
+    This is analogous to attack and defense parameters in Poisson football models — a single
+    number that summarises how dangerous a player is on clay heading into the tournament.
+  </p>
+
+  <div class="equation">
+    Clay Strength &nbsp;=&nbsp;
+    0.45 × Clay Elo (z-score)
+    &nbsp;+&nbsp;
+    0.30 × Clay Win Rate — 12 months (z-score)
+    &nbsp;+&nbsp;
+    0.25 × Overall Form — last 20 matches (z-score)
+  </div>
+
+  <div class="design-choice">
+    <strong>Design Choice</strong>
+    Clay Elo gets the highest weight (45%) because it is the most stable signal over thousands
+    of matches. Recent win rate (30%) captures current form on the surface. Overall form (25%)
+    ensures a player on a hot streak is not penalised for playing on hard courts in the build-up.
+    All three components are z-score normalised so they are on the same scale before combining.
+  </div>
+
+  <h3>Draw Construction</h3>
+  <p>
+    We replicate the official Grand Slam seeding rules:
+  </p>
+  <ul style="margin: 12px 0 20px 24px; line-height: 2.2;">
+    <li>Seed 1 → fixed position 1 (top of top half)</li>
+    <li>Seed 2 → fixed position 128 (bottom of bottom half)</li>
+    <li>Seeds 3–4 → drawn randomly to the two half-boundary slots</li>
+    <li>Seeds 5–8 → one drawn randomly per quarter</li>
+    <li>Seeds 9–16 and 17–32 → fill their respective sections</li>
+    <li>Remaining 96 unseeded players → placed randomly</li>
+  </ul>
+
+  <h3>Monte Carlo Simulation</h3>
+  <p>
+    We run 20,000 independent simulations of the full 128-player bracket. In each simulation:
+  </p>
+  <ol style="margin: 12px 0 20px 28px; line-height: 2.2;">
+    <li>Start with the draw (bracket positions are the same in every simulation)</li>
+    <li>For each first-round match, draw a random outcome from the match win probability</li>
+    <li>The winner advances; repeat for Round 2 through the Final</li>
+    <li>Record which player won the title, and which round each player reached</li>
+  </ol>
+
+  <p>
+    After 20,000 runs, each player's probability of reaching each round is the fraction of
+    simulations where they reached it. With 20,000 runs, championship odds are stable to within
+    roughly ±0.5 percentage points.
+  </p>
+
+  <div class="design-choice">
+    <strong>Design Choice — Match Probability Caching</strong>
+    In a 128-player bracket, each unique pair of players is scored by the model at most once
+    per simulation. But across 20,000 simulations the same pairings recur constantly. We cache
+    all computed probabilities so each unique pair is evaluated only once. This reduces the
+    per-simulation cost from 127 model evaluations to near zero after the first few hundred
+    simulations, making 20,000 runs practical in minutes rather than hours.
+  </div>
+
+  <h3>Sample Output</h3>
+  <p>
+    The result is a 128-row DataFrame sorted by championship probability. Here is a preview of
+    the top contenders:
+  </p>
+
+  <div class="table-wrap">
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Rank</th>
+          <th>R64</th>
+          <th>R32</th>
+          <th>R16</th>
+          <th>QF</th>
+          <th>SF</th>
+          <th>F</th>
+          <th>Win</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sinner</td><td>1</td>
+          <td>98%</td><td>88%</td><td>74%</td>
+          <td class="mid">56%</td><td class="mid">38%</td><td class="high">26%</td>
+          <td class="prob high">18%</td>
+        </tr>
+        <tr>
+          <td>Alcaraz</td><td>2</td>
+          <td>97%</td><td>83%</td><td>67%</td>
+          <td class="mid">49%</td><td class="mid">31%</td><td class="mid">21%</td>
+          <td class="prob mid">13%</td>
+        </tr>
+        <tr>
+          <td>Zverev</td><td>3</td>
+          <td>96%</td><td>79%</td><td>61%</td>
+          <td>41%</td><td class="mid">24%</td><td>14%</td>
+          <td class="prob">8%</td>
+        </tr>
+        <tr>
+          <td>Ruud</td><td>4</td>
+          <td>95%</td><td>75%</td><td>55%</td>
+          <td>35%</td><td>19%</td><td>10%</td>
+          <td class="prob">5%</td>
+        </tr>
+        <tr>
+          <td>Mensik</td><td>5</td>
+          <td>94%</td><td>71%</td><td>50%</td>
+          <td>29%</td><td>15%</td><td>8%</td>
+          <td class="prob">4%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- LIMITATIONS -->
+  <h2>What This Model Does Not Do</h2>
+  <p>Being explicit about limitations matters as much as describing capabilities.</p>
+
+  <ul class="limits">
+    <li>
+      <div>
+        <strong>No injury or withdrawal modelling.</strong><br />
+        If Sinner withdraws two days before the tournament, the model does not know.
+        The draw would need to be rebuilt manually.
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>No match-level context.</strong><br />
+        We do not model fatigue across consecutive matches, weather conditions, or scheduling
+        gaps. Tennis is a physically brutal sport; back-to-back five-set matches are not captured.
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>No betting market calibration.</strong><br />
+        Unlike Poisson football simulators, we do not blend our probabilities with bookmaker
+        odds. The model is a pure statistical estimate from historical data — self-contained
+        and fully interpretable, but not attempting to beat the market.
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>2024 data cutoff.</strong><br />
+        Training data ends at the 2024 season. To refresh the model, re-run
+        <code>1_fetch_data.py</code> once the 2025 CSV is available in the JeffSackmann
+        repository, then re-run the full pipeline.
+      </div>
+    </li>
+  </ul>
+
+  <hr class="divider" />
+
+  <!-- PIPELINE DIAGRAM -->
+  <h2>The Full Pipeline at a Glance</h2>
+
+  <div class="pipeline-diagram">
+    <span class="script">1_fetch_data.py</span><br />
+    <span class="arrow">&nbsp;&nbsp;└─</span> Downloads 74,000 ATP matches
+    <span class="arrow">→</span> <span class="output">data/raw/</span><br />
+    <br />
+    <span class="script">2_build_features.py</span><br />
+    <span class="arrow">&nbsp;&nbsp;└─</span> Elo + H2H + surface WR + form
+    <span class="arrow">→</span> <span class="output">data/processed/features.pkl</span><br />
+    <br />
+    <span class="script">3_train_model.py</span><br />
+    <span class="arrow">&nbsp;&nbsp;├─</span> XGBoost (65.8% val accuracy)
+    <span class="arrow">→</span> <span class="output">models/xgb_atp.joblib</span><br />
+    <span class="arrow">&nbsp;&nbsp;└─</span> Live player states (2,640 players)
+    <span class="arrow">→</span> <span class="output">data/processed/player_states.pkl</span><br />
+    <br />
+    <span class="script">4_simulate_rg2026.py</span><br />
+    <span class="arrow">&nbsp;&nbsp;└─</span> Clay ratings + draw + 20,000 Monte Carlo sims
+    <span class="arrow">→</span> <span class="output">data/rg2026_results.pkl</span><br />
+    <br />
+    <span class="script">app.py</span> <span class="comment"># Step 5 — coming next</span><br />
+    <span class="arrow">&nbsp;&nbsp;└─</span> Streamlit dashboard
+    <span class="arrow">←</span> loads <span class="output">rg2026_results.pkl</span>
+  </div>
+
+  <p>
+    Each script is self-contained and runnable from the repo root with <code>python &lt;script&gt;</code>.
+    The <code>.pkl</code> files act as checkpoints — you can re-run any single stage without
+    re-running the whole pipeline.
+  </p>
+
+  <hr class="divider" />
+
+  <!-- FUNCTION REFERENCE -->
+  <h2>Function Reference</h2>
+  <p>
+    Every key function in the pipeline is documented below — what it does, what goes in,
+    and what comes out.
+  </p>
+
+  <!-- fetch_matches -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/data/fetch.py</span>
+      <code class="fn-name">fetch_matches(start_year, end_year, save_dir)</code>
+    </div>
+    <p class="fn-desc">
+      Downloads one CSV per year from the JeffSackmann GitHub repository and concatenates them
+      into a single DataFrame. Files already present in <code>save_dir</code> are read from disk
+      rather than re-downloaded. Raises <code>RuntimeError</code> if no data could be fetched.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        <code>start_year=2000</code>, <code>end_year=2026</code>, <code>save_dir="data/raw"</code>
+      </div>
+      <div><span class="io-label out">Out</span>
+        DataFrame — ~76,000 rows, columns include
+        <code>winner_id</code>, <code>loser_id</code>, <code>surface</code>,
+        <code>winner_rank</code>, <code>tourney_date</code>, <code>score</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- fetch_tennisdata_year -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/data/fetch_recent.py</span>
+      <code class="fn-name">fetch_tennisdata_year(year, save_dir)</code>
+    </div>
+    <p class="fn-desc">
+      Downloads the full-year ATP Excel file from
+      <code>http://www.tennis-data.co.uk/{year}/{year}.xlsx</code> and caches it locally.
+      Returns the raw DataFrame with tennis-data column names (Winner, Loser, WRank, Surface, …).
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        <code>year=2026</code>, <code>save_dir="data/raw"</code>
+      </div>
+      <div><span class="io-label out">Out</span>
+        Raw DataFrame with tennis-data schema (~1,000 rows for a full season)
+      </div>
+    </div>
+  </div>
+
+  <!-- resolve_player_id -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/data/fetch_recent.py</span>
+      <code class="fn-name">resolve_player_id(name, primary, secondary, all_last_names)</code>
+    </div>
+    <p class="fn-desc">
+      Maps a tennis-data abbreviated name string (e.g. <code>"Sinner J."</code>) to a
+      JeffSackmann numeric player ID. Tries three strategies in order:
+      (1) exact <code>(last_name, first_initial)</code> lookup,
+      (2) unambiguous last-name-only lookup,
+      (3) fuzzy last-name match with cutoff 0.75.
+      Returns <code>-1</code> if all strategies fail — the record is then dropped.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        <code>name</code> — raw string from tennis-data &nbsp;|&nbsp;
+        <code>primary</code>, <code>secondary</code> — dicts from <code>build_name_index()</code>
+      </div>
+      <div><span class="io-label out">Out</span>
+        <code>int</code> — JeffSackmann player_id, or <code>-1</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- map_tennisdata_to_sackmann -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/data/fetch_recent.py</span>
+      <code class="fn-name">map_tennisdata_to_sackmann(raw_df, players_df, surface_filter, complete_only)</code>
+    </div>
+    <p class="fn-desc">
+      Converts a raw tennis-data DataFrame into JeffSackmann-compatible format.
+      Filters by surface and completion status, resolves all player names to IDs,
+      renames and casts every column to match the JeffSackmann schema.
+      Drops rows where either player ID could not be resolved.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        raw tennis-data DataFrame &nbsp;|&nbsp; <code>players_df</code> from <code>fetch_players()</code>
+        &nbsp;|&nbsp; <code>surface_filter="Clay"</code>
+      </div>
+      <div><span class="io-label out">Out</span>
+        JeffSackmann-schema DataFrame — ready to <code>pd.concat()</code> with historical data
+      </div>
+    </div>
+  </div>
+
+  <!-- clean_matches -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/data/process.py</span>
+      <code class="fn-name">clean_matches(df)</code>
+    </div>
+    <p class="fn-desc">
+      Standardises a raw match DataFrame: parses <code>tourney_date</code> to datetime,
+      maps surface names to canonical labels (Hard / Clay / Grass / Carpet),
+      fills missing ranks with 9999, flags retirements and walkovers as
+      <code>is_complete=False</code>, sorts chronologically, and assigns a global
+      <code>match_idx</code>. This is the single cleaning step that every downstream
+      module depends on.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        Raw DataFrame from <code>fetch_matches()</code> or <code>pd.concat([...])</code>
+      </div>
+      <div><span class="io-label out">Out</span>
+        Cleaned DataFrame with <code>match_idx</code>, <code>is_complete</code>, typed columns
+      </div>
+    </div>
+  </div>
+
+  <!-- build_features -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/features/builder.py</span>
+      <code class="fn-name">build_features(matches, use_cache, cache_path)</code>
+    </div>
+    <p class="fn-desc">
+      Orchestrates the full feature-engineering pipeline: runs Elo, H2H, surface win rate,
+      and form modules in order (each adding columns to the DataFrame) then caches the result
+      as a pickle. On subsequent runs <code>use_cache=True</code> loads the pickle directly —
+      saving 5+ minutes of computation.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        Cleaned DataFrame from <code>clean_matches()</code>
+      </div>
+      <div><span class="io-label out">Out</span>
+        Enriched DataFrame with 10+ new columns — saved to <code>data/processed/features.pkl</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- symmetrize -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/features/builder.py</span>
+      <code class="fn-name">symmetrize(df)</code>
+    </div>
+    <p class="fn-desc">
+      Doubles the training dataset by duplicating each match as two rows:
+      one where player 1 is the winner (target=1) and one where the roles are swapped (target=0).
+      Computes difference features (<code>elo_diff</code>, <code>rank_diff</code>, etc.)
+      from the per-player columns. This is what the XGBoost model is trained on.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        Feature DataFrame (~76k rows) from <code>build_features()</code>
+      </div>
+      <div><span class="io-label out">Out</span>
+        Symmetrised DataFrame (~152k rows) with <code>MODEL_FEATURES</code> columns + <code>target</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- train_model -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/models/train.py</span>
+      <code class="fn-name">train_model(df, model_path, complete_only)</code>
+    </div>
+    <p class="fn-desc">
+      Fits an XGBoost binary classifier on the symmetrised DataFrame.
+      Drops incomplete matches (retirements / walkovers) if <code>complete_only=True</code>,
+      removes rows with NaN features, then trains and saves the model with <code>joblib.dump()</code>.
+      Returns the fitted model object.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        Symmetrised DataFrame (train split only — years 2000–2021)
+      </div>
+      <div><span class="io-label out">Out</span>
+        <code>XGBClassifier</code> saved to <code>models/xgb_atp.joblib</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- PlayerStateTracker.process_all -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/models/predict.py</span>
+      <code class="fn-name">PlayerStateTracker.process_all(matches)</code>
+    </div>
+    <p class="fn-desc">
+      Replays all 76,000 matches in chronological order, maintaining a live state for
+      each of the 2,640+ players: global Elo, surface Elo (one per surface), ATP rank,
+      form deque (last 20 matches), rolling surface win rate, and head-to-head records
+      against every opponent. After calling this, <code>tracker.get_player_state(pid, surface)</code>
+      returns the player's state as of the last match in the dataset — i.e., right now.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        Cleaned and chronologically sorted full match DataFrame
+      </div>
+      <div><span class="io-label out">Out</span>
+        Mutates internal dicts; saved to <code>data/processed/player_states.pkl</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- MatchPredictor.predict -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/models/predict.py</span>
+      <code class="fn-name">MatchPredictor.predict(p1, p2, surface, h2h_winrate, h2h_total)</code>
+    </div>
+    <p class="fn-desc">
+      Takes two player state dicts (from <code>tracker.get_player_state()</code>),
+      builds the 11-feature vector, and returns <code>P(p1 beats p2)</code> on the given surface.
+      The complement <code>1 − p</code> is <code>P(p2 beats p1)</code>.
+      Internally this is just one row passed through the XGBoost model's <code>predict_proba()</code>.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        Two player state dicts &nbsp;|&nbsp; surface string &nbsp;|&nbsp; h2h win rate and total
+      </div>
+      <div><span class="io-label out">Out</span>
+        <code>float</code> in [0, 1] — win probability for player 1
+      </div>
+    </div>
+  </div>
+
+  <!-- compute_clay_ratings -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/rg/clay_rating.py</span>
+      <code class="fn-name">compute_clay_ratings(tracker, player_ids)</code>
+    </div>
+    <p class="fn-desc">
+      Computes a composite clay strength score for each player in the field.
+      Pulls <code>clay_elo</code>, <code>clay_winrate</code>, and <code>form</code>
+      from the tracker, z-score normalises each dimension across the 128-player field,
+      then weights them 45 / 30 / 25. The output is sorted descending — index 0 is the
+      top seed for draw purposes.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        Fitted <code>PlayerStateTracker</code> &nbsp;|&nbsp; list of 128 player IDs
+      </div>
+      <div><span class="io-label out">Out</span>
+        DataFrame (128 rows) with columns: <code>player_id, name, rank, clay_elo,
+        clay_winrate, form, clay_strength</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- create_rg_draw -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/rg/draw.py</span>
+      <code class="fn-name">create_rg_draw(player_ids, rng_seed)</code>
+    </div>
+    <p class="fn-desc">
+      Assigns 128 players to bracket positions following official Grand Slam seeding rules.
+      Seeds 1 and 2 are fixed. Seeds 3–4 draw randomly to the half-boundary slots.
+      Seeds 5–8 draw to quarter boundaries. Seeds 9–16 and 17–32 fill their sections.
+      The remaining 96 unseeded players are shuffled into empty slots.
+      The same <code>rng_seed</code> always produces the same bracket.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        128 player IDs sorted by seeding (seed 1 first) &nbsp;|&nbsp; <code>rng_seed=42</code>
+      </div>
+      <div><span class="io-label out">Out</span>
+        List of 128 player IDs in bracket order —
+        match pairs are <code>(draw[0],draw[1])</code>, <code>(draw[2],draw[3])</code>, …
+      </div>
+    </div>
+  </div>
+
+  <!-- RGSimulator.simulate -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">src/rg/simulator.py</span>
+      <code class="fn-name">RGSimulator.simulate(draw, n_sim, seed, verbose)</code>
+    </div>
+    <p class="fn-desc">
+      Runs <code>n_sim</code> independent Monte Carlo simulations of the 128-player bracket.
+      In each simulation, match outcomes are sampled from the XGBoost match probabilities.
+      Round counts are accumulated per player; after all simulations the counts are divided by
+      <code>n_sim</code> to give reach probabilities. Match probabilities are cached so each
+      unique pair is evaluated only once across all 20,000 runs — making the simulation fast.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        <code>draw</code> — 128 player IDs in bracket order &nbsp;|&nbsp;
+        <code>n_sim=20_000</code>
+      </div>
+      <div><span class="io-label out">Out</span>
+        DataFrame (128 rows × 8 round columns: R128, R64, R32, R16, QF, SF, F, W) —
+        saved to <code>data/rg2026_results.pkl</code>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════ FOOTER ════════════════════════════════ -->
+<footer>
+  <p>Roland Garros 2026 Predictor &nbsp;·&nbsp; Built with Python, XGBoost, and Streamlit</p>
+  <p style="margin-top:8px;">
+    Data: <a href="https://github.com/JeffSackmann/tennis_atp" target="_blank">JeffSackmann/tennis_atp</a>
+    &nbsp;·&nbsp;
+    Inspired by <a href="https://medium.com/@vickyfrissdekereki" target="_blank">Vicky Friss de Kereki</a>'s football simulator
+  </p>
+</footer>
+
+</body>
+</html>

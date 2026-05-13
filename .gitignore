@@ -1,5 +1,6 @@
 data/raw/
 data/processed/
+data/rg2026_results.pkl
 models/
 __pycache__/
 *.py[cod]
@@ -7,7 +8,5 @@ __pycache__/
 .env
 venv/
 .venv/
-.ipynb_checkpoints/
-*.nbconvert/
 .DS_Store
 Thumbs.db

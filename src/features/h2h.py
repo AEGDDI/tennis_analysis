@@ -16,7 +16,6 @@ def compute_h2h(matches: pd.DataFrame) -> pd.DataFrame:
     Adds columns:
       winner_h2h_wins, winner_h2h_losses, h2h_total, winner_h2h_winrate
     """
-    # h2h_counts[(min_id, max_id)] = [wins_of_min, wins_of_max]
     h2h_counts: Dict[Tuple[int, int], list] = defaultdict(lambda: [0, 0])
 
     w_h2h_wins, w_h2h_losses, totals = [], [], []
@@ -35,7 +34,6 @@ def compute_h2h(matches: pd.DataFrame) -> pd.DataFrame:
         w_h2h_losses.append(w_losses)
         totals.append(w_wins + w_losses)
 
-        # Update AFTER recording
         if wid == key[0]:
             h2h_counts[key][0] += 1
         else:

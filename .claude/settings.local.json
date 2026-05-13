@@ -15,7 +15,22 @@
       "Bash(Sort-Object FullName)",
       "Bash(Format-Table -AutoSize)",
       "WebFetch(domain:tennis.bzzoiro.com)",
-      "WebFetch(domain:medium.com)"
+      "WebFetch(domain:medium.com)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\ALESSANDRO\\\\Documents\\\\GitHub\\\\tennis_analysis\" -Recurse -Force)",
+      "Bash(Select-Object -Property FullName, PSIsContainer)",
+      "Bash(gh api *)",
+      "Bash(python -c \"import sys,base64; print\\(base64.b64decode\\(sys.stdin.read\\(\\)\\).decode\\('utf-8','ignore'\\)\\)\")",
+      "Bash(cp -r atp-predictor/data/raw data/raw)",
+      "Bash(cp -r atp-predictor/data/processed data/processed)",
+      "Bash(powershell.exe -Command \"Remove-Item -Recurse -Force 'C:\\\\Users\\\\ALESSANDRO\\\\Documents\\\\GitHub\\\\tennis_analysis\\\\atp-predictor' -ErrorAction SilentlyContinue\")",
+      "Bash(python3 *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://raw.githubusercontent.com/JeffSackmann/tennis_atp/master/atp_matches_2025.csv\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://raw.githubusercontent.com/JeffSackmann/tennis_atp/master/atp_matches_2026.csv\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/JeffSackmann/tennis_atp/master/atp_matches_2026.csv\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://www.tennis-data.co.uk/2026/2026.xlsx\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://www.tennis-data.co.uk/2026/2026.xlsx\")",
+      "Bash(curl -s -L \"http://www.tennis-data.co.uk/2026/2026.xlsx\" -o /tmp/tennisdata_2026.xlsx)",
+      "Bash(curl -s -L \"http://www.tennis-data.co.uk/2026/2026.xlsx\" -o \"C:/Users/ALESSANDRO/AppData/Local/Temp/tennisdata_2026.xlsx\")"
     ]
   }
 }

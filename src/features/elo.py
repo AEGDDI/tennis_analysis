@@ -54,12 +54,10 @@ def compute_elo_ratings(matches: pd.DataFrame) -> pd.DataFrame:
         w_surf_pre.append(ws)
         l_surf_pre.append(ls)
 
-        # Update global
         new_wg, new_lg = update_elo(wg, lg)
         global_elo[wid] = new_wg
         global_elo[lid] = new_lg
 
-        # Update surface
         new_ws, new_ls = update_elo(ws, ls)
         surf_elo[(wid, surface)] = new_ws
         surf_elo[(lid, surface)] = new_ls
@@ -75,10 +73,7 @@ def compute_elo_ratings(matches: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_current_elo(matches: pd.DataFrame) -> Tuple[Dict[int, float], Dict[Tuple[int, str], float]]:
-    """
-    Replay all matches and return the final Elo state dictionaries.
-    Useful for seeding live predictions.
-    """
+    """Replay all matches and return the final Elo state dictionaries."""
     global_elo: Dict[int, float] = {}
     surf_elo: Dict[Tuple[int, str], float] = {}
 

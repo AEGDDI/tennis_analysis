@@ -13,7 +13,6 @@ from .form import compute_recent_form
 
 CACHE_PATH = "data/processed/features.pkl"
 
-# Features used by the XGBoost model (from p1's perspective)
 MODEL_FEATURES = [
     "elo_diff",
     "surface_elo_diff",
@@ -34,10 +33,7 @@ def build_features(
     use_cache: bool = True,
     cache_path: str = CACHE_PATH,
 ) -> pd.DataFrame:
-    """
-    Run all feature modules in order and return the enriched DataFrame.
-    Intermediate result is pickled for fast reloads.
-    """
+    """Run all feature modules in order and return the enriched DataFrame."""
     if use_cache and os.path.exists(cache_path):
         print(f"Loading cached features from {cache_path}")
         with open(cache_path, "rb") as f:
@@ -48,7 +44,6 @@ def build_features(
     matches = compute_surface_winrates(matches)
     matches = compute_recent_form(matches)
 
-    # Derived rank features
     matches["rank_diff_raw"] = matches["winner_rank"] - matches["loser_rank"]
     matches["rank_points_diff_raw"] = matches["winner_rank_points"] - matches["loser_rank_points"]
     matches["age_diff_raw"] = (
@@ -67,24 +62,16 @@ def symmetrize(df: pd.DataFrame) -> pd.DataFrame:
     Double the dataset by swapping winner/loser so the model sees both orientations.
     Returns a DataFrame with MODEL_FEATURES columns plus 'target' and metadata.
     """
-    shared_cols = ["tourney_date", "year", "surface", "tourney_level",
-                   "tourney_name", "match_idx", "is_complete",
-                   "winner_id", "loser_id", "winner_name", "loser_name"]
-    shared_cols = [c for c in shared_cols if c in df.columns]
-
     def _make_row(row, p1_is_winner: bool):
         if p1_is_winner:
             return {
-                "p1_id": row.winner_id,
-                "p2_id": row.loser_id,
+                "p1_id": row.winner_id, "p2_id": row.loser_id,
                 "p1_name": getattr(row, "winner_name", ""),
                 "p2_name": getattr(row, "loser_name", ""),
-                "p1_elo": row.winner_elo,
-                "p2_elo": row.loser_elo,
+                "p1_elo": row.winner_elo, "p2_elo": row.loser_elo,
                 "p1_surface_elo": row.winner_surface_elo,
                 "p2_surface_elo": row.loser_surface_elo,
-                "p1_rank": row.winner_rank,
-                "p2_rank": row.loser_rank,
+                "p1_rank": row.winner_rank, "p2_rank": row.loser_rank,
                 "p1_rank_points": row.winner_rank_points,
                 "p2_rank_points": row.loser_rank_points,
                 "p1_surf_winrate": row.winner_surf_winrate if not np.isnan(row.winner_surf_winrate) else 0.5,
@@ -92,24 +79,20 @@ def symmetrize(df: pd.DataFrame) -> pd.DataFrame:
                 "p1_form": row.winner_form if not np.isnan(row.winner_form) else 0.5,
                 "p2_form": row.loser_form if not np.isnan(row.loser_form) else 0.5,
                 "p1_h2h_winrate": row.winner_h2h_winrate,
-                "p1_surf_n": row.winner_surf_n,
-                "p2_surf_n": row.loser_surf_n,
+                "p1_surf_n": row.winner_surf_n, "p2_surf_n": row.loser_surf_n,
                 "h2h_total": row.h2h_total,
                 "age_diff": row.age_diff_raw,
                 "target": 1,
             }
         else:
             return {
-                "p1_id": row.loser_id,
-                "p2_id": row.winner_id,
+                "p1_id": row.loser_id, "p2_id": row.winner_id,
                 "p1_name": getattr(row, "loser_name", ""),
                 "p2_name": getattr(row, "winner_name", ""),
-                "p1_elo": row.loser_elo,
-                "p2_elo": row.winner_elo,
+                "p1_elo": row.loser_elo, "p2_elo": row.winner_elo,
                 "p1_surface_elo": row.loser_surface_elo,
                 "p2_surface_elo": row.winner_surface_elo,
-                "p1_rank": row.loser_rank,
-                "p2_rank": row.winner_rank,
+                "p1_rank": row.loser_rank, "p2_rank": row.winner_rank,
                 "p1_rank_points": row.loser_rank_points,
                 "p2_rank_points": row.winner_rank_points,
                 "p1_surf_winrate": row.loser_surf_winrate if not np.isnan(row.loser_surf_winrate) else 0.5,
@@ -117,8 +100,7 @@ def symmetrize(df: pd.DataFrame) -> pd.DataFrame:
                 "p1_form": row.loser_form if not np.isnan(row.loser_form) else 0.5,
                 "p2_form": row.winner_form if not np.isnan(row.winner_form) else 0.5,
                 "p1_h2h_winrate": 1.0 - row.winner_h2h_winrate,
-                "p1_surf_n": row.loser_surf_n,
-                "p2_surf_n": row.winner_surf_n,
+                "p1_surf_n": row.loser_surf_n, "p2_surf_n": row.winner_surf_n,
                 "h2h_total": row.h2h_total,
                 "age_diff": -row.age_diff_raw,
                 "target": 0,
@@ -134,7 +116,6 @@ def symmetrize(df: pd.DataFrame) -> pd.DataFrame:
     out["match_idx"] = list(df["match_idx"]) * 2
     out["is_complete"] = list(df["is_complete"]) * 2
 
-    # Difference features
     out["elo_diff"] = out["p1_elo"] - out["p2_elo"]
     out["surface_elo_diff"] = out["p1_surface_elo"] - out["p2_surface_elo"]
     out["rank_diff"] = out["p1_rank"] - out["p2_rank"]

@@ -13,14 +13,12 @@ def compute_recent_form(
 ) -> pd.DataFrame:
     """
     For each match, compute each player's win rate over their last `window` matches.
-    Uses fixed-length deques for O(n) performance.
 
     Adds columns:
       winner_form, loser_form   – win rate in last N matches (NaN if none)
       winner_form_n, loser_form_n
-      form_diff                 – winner minus loser (NaN→0.5)
+      form_diff                 – winner minus loser (NaN->0.5)
     """
-    # player_id -> deque of 0/1 results (1=win), max length = window
     results: dict = defaultdict(lambda: deque(maxlen=window))
 
     w_form, l_form, w_fn, l_fn = [], [], [], []

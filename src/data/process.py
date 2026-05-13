@@ -49,7 +49,6 @@ def clean_matches(df: pd.DataFrame) -> pd.DataFrame:
     score_str = df["score"].fillna("")
     df["is_complete"] = ~score_str.str.contains(r"W/O|RET|DEF", regex=True)
 
-    # Drop rows with invalid dates or missing player IDs
     df = df.dropna(subset=["tourney_date", "winner_id", "loser_id"])
     df["winner_id"] = df["winner_id"].astype(int)
     df["loser_id"] = df["loser_id"].astype(int)

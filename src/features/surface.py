@@ -13,15 +13,14 @@ def compute_surface_winrates(
 ) -> pd.DataFrame:
     """
     For each match, compute each player's win rate on the match surface
-    over the preceding `window_days` days.  Uses deques for O(n) amortised cost.
+    over the preceding `window_days` days.
 
     Adds columns:
       winner_surf_winrate, loser_surf_winrate   – NaN if no history
       winner_surf_n, loser_surf_n               – number of matches in window
-      surf_winrate_diff                          – winner minus loser (NaN→0.5)
+      surf_winrate_diff                          – winner minus loser (NaN->0.5)
     """
     window = pd.Timedelta(days=window_days)
-    # (player_id, surface) -> deque of (date, result_1_or_0)
     history: dict = defaultdict(deque)
 
     w_wr, l_wr, w_n, l_n = [], [], [], []
