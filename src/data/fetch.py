@@ -12,7 +12,7 @@ BASE_URL = "https://raw.githubusercontent.com/JeffSackmann/tennis_atp/master"
 
 def fetch_matches(
     start_year: int = 2000,
-    end_year: int = 2024,
+    end_year: int = 2025,
     save_dir: str = "data/raw",
 ) -> pd.DataFrame:
     """Download ATP match CSVs, caching each year locally."""

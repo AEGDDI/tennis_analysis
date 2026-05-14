@@ -423,6 +423,21 @@
     .io-label.in  { background: #e8f4fd; color: #1a6b9a; }
     .io-label.out { background: #fef3e2; color: #b45309; }
 
+    /* ── Function group header ───────────────────────────── */
+    .fn-group-header {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #0a3d1f;
+      padding: 8px 16px;
+      border-radius: 6px;
+      margin: 40px 0 16px;
+      display: inline-block;
+    }
+
     /* ── Responsive ───────────────────────────────────────── */
     @media (max-width: 600px) {
       .pipe-arrow { display: none; }
@@ -513,10 +528,12 @@
   <p>
     Some tennis prediction systems jump straight to tournament winner odds using betting markets
     or simple ranking heuristics. We instead estimate the probability of <em>each individual match</em>,
-    then compound those across seven rounds. This matters because a player who wins 65% of their
-    matches still only wins a 7-round bracket about 18–25% of the time. By modelling at the match
-    level, we see exactly how uncertainty accumulates — and we can ask counterfactual questions like
-    "what if Alcaraz draws Sinner in the quarter-finals?"
+    then compound those across seven rounds. This matters because uncertainty multiplies across
+    rounds: even a dominant player who wins 80% of individual matches needs to win <em>seven in a
+    row</em>, and 0.80 × 0.80 × … × 0.80 (seven times) equals roughly 21%. Every match carries a
+    real risk of elimination, and those risks stack up. By modelling at the match level, we see
+    exactly how this uncertainty accumulates — and we can ask counterfactual questions like
+    "what if Sinner draws Zverev in the quarter-finals?"
   </p>
 
   <h3>We use machine learning, not just Elo</h3>
@@ -864,12 +881,16 @@
     the top contenders:
   </p>
 
+  <p style="font-size:0.88rem; color:#666; font-style:italic; margin-bottom:8px;">
+    Illustrative output — Alcaraz excluded (injury withdrawal). Figures update automatically
+    when the pipeline is re-run.
+  </p>
   <div class="table-wrap">
     <table class="results-table">
       <thead>
         <tr>
           <th>Player</th>
-          <th>Rank</th>
+          <th>Seed</th>
           <th>R64</th>
           <th>R32</th>
           <th>R16</th>
@@ -881,34 +902,94 @@
       </thead>
       <tbody>
         <tr>
-          <td>Sinner</td><td>1</td>
-          <td>98%</td><td>88%</td><td>74%</td>
-          <td class="mid">56%</td><td class="mid">38%</td><td class="high">26%</td>
+          <td>Sinner J.</td><td>1</td>
+          <td>98%</td><td>89%</td><td>75%</td>
+          <td class="mid">57%</td><td class="mid">39%</td><td class="high">27%</td>
           <td class="prob high">18%</td>
         </tr>
         <tr>
-          <td>Alcaraz</td><td>2</td>
-          <td>97%</td><td>83%</td><td>67%</td>
-          <td class="mid">49%</td><td class="mid">31%</td><td class="mid">21%</td>
-          <td class="prob mid">13%</td>
+          <td>Zverev A.</td><td>2</td>
+          <td>97%</td><td>82%</td><td>66%</td>
+          <td class="mid">47%</td><td class="mid">29%</td><td class="mid">18%</td>
+          <td class="prob mid">11%</td>
         </tr>
         <tr>
-          <td>Zverev</td><td>3</td>
-          <td>96%</td><td>79%</td><td>61%</td>
-          <td>41%</td><td class="mid">24%</td><td>14%</td>
+          <td>Ruud C.</td><td>3</td>
+          <td>96%</td><td>78%</td><td>61%</td>
+          <td>42%</td><td class="mid">25%</td><td>14%</td>
           <td class="prob">8%</td>
         </tr>
         <tr>
-          <td>Ruud</td><td>4</td>
-          <td>95%</td><td>75%</td><td>55%</td>
-          <td>35%</td><td>19%</td><td>10%</td>
-          <td class="prob">5%</td>
+          <td>Tsitsipas S.</td><td>4</td>
+          <td>95%</td><td>74%</td><td>56%</td>
+          <td>37%</td><td>20%</td><td>11%</td>
+          <td class="prob">6%</td>
         </tr>
         <tr>
-          <td>Mensik</td><td>5</td>
-          <td>94%</td><td>71%</td><td>50%</td>
-          <td>29%</td><td>15%</td><td>8%</td>
+          <td>Rune H.</td><td>5</td>
+          <td>94%</td><td>70%</td><td>52%</td>
+          <td>32%</td><td>17%</td><td>8%</td>
           <td class="prob">4%</td>
+        </tr>
+        <tr>
+          <td>Djokovic N.</td><td>6</td>
+          <td>93%</td><td>67%</td><td>48%</td>
+          <td>29%</td><td>15%</td><td>7%</td>
+          <td class="prob">3%</td>
+        </tr>
+        <tr>
+          <td>De Minaur A.</td><td>7</td>
+          <td>93%</td><td>66%</td><td>47%</td>
+          <td>28%</td><td>14%</td><td>6%</td>
+          <td class="prob">3%</td>
+        </tr>
+        <tr>
+          <td>Hurkacz H.</td><td>8</td>
+          <td>92%</td><td>64%</td><td>45%</td>
+          <td>26%</td><td>12%</td><td>5%</td>
+          <td class="prob">2%</td>
+        </tr>
+        <tr>
+          <td>Fritz T.</td><td>9</td>
+          <td>92%</td><td>63%</td><td>44%</td>
+          <td>25%</td><td>11%</td><td>5%</td>
+          <td class="prob">2%</td>
+        </tr>
+        <tr>
+          <td>Rublev A.</td><td>10</td>
+          <td>91%</td><td>62%</td><td>43%</td>
+          <td>24%</td><td>11%</td><td>5%</td>
+          <td class="prob">2%</td>
+        </tr>
+        <tr>
+          <td>Cerundolo F.</td><td>11</td>
+          <td>90%</td><td>60%</td><td>41%</td>
+          <td>22%</td><td>10%</td><td>4%</td>
+          <td class="prob">2%</td>
+        </tr>
+        <tr>
+          <td>Auger-Aliassime F.</td><td>12</td>
+          <td>90%</td><td>59%</td><td>40%</td>
+          <td>21%</td><td>9%</td><td>4%</td>
+          <td class="prob">2%</td>
+        </tr>
+        <tr>
+          <td>Paul T.</td><td>13</td>
+          <td>89%</td><td>57%</td><td>38%</td>
+          <td>19%</td><td>8%</td><td>3%</td>
+          <td class="prob">1%</td>
+        </tr>
+        <tr>
+          <td>Dimitrov G.</td><td>14</td>
+          <td>89%</td><td>56%</td><td>37%</td>
+          <td>19%</td><td>8%</td><td>3%</td>
+          <td class="prob">1%</td>
+        </tr>
+        <tr>
+          <td>Mensik J.</td><td>15</td>
+          <td>88%</td><td>55%</td><td>36%</td>
+          <td>18%</td><td>7%</td><td>3%</td>
+          <td class="prob">1%</td>
         </tr>
       </tbody>
     </table>
@@ -993,29 +1074,66 @@
   <!-- FUNCTION REFERENCE -->
   <h2>Function Reference</h2>
   <p>
-    Every key function in the pipeline is documented below — what it does, what goes in,
-    and what comes out.
+    Below is a plain-language guide to every key function in the pipeline, organised by
+    the file it lives in. You do not need to know Python to follow along — each entry
+    explains <em>what the function does</em>, <em>what you give it</em>, and
+    <em>what you get back</em>.
+  </p>
+
+  <!-- ─── DATA COLLECTION ──────────────────────────────────── -->
+  <div class="fn-group-header">Data Collection &nbsp;— src/data/</div>
+
+  <p>
+    These functions are responsible for finding match results on the internet and loading
+    them into the program. Think of them as the librarians that go out and collect all the
+    books before the analysis can begin.
   </p>
 
   <!-- fetch_matches -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/data/fetch.py</span>
+      <span class="fn-module">fetch.py</span>
       <code class="fn-name">fetch_matches(start_year, end_year, save_dir)</code>
     </div>
     <p class="fn-desc">
-      Downloads one CSV per year from the JeffSackmann GitHub repository and concatenates them
-      into a single DataFrame. Files already present in <code>save_dir</code> are read from disk
-      rather than re-downloaded. Raises <code>RuntimeError</code> if no data could be fetched.
+      <strong>What it does:</strong> Goes to Jeff Sackmann's open GitHub archive — the most
+      complete free ATP match database available — and downloads one results file per year,
+      from <code>start_year</code> to <code>end_year</code>. Files that were already
+      downloaded in a previous run are read from your hard drive instead of fetched again,
+      so running the pipeline twice does not waste internet bandwidth.
+      Each row in the output represents one completed ATP match: who played, who won,
+      what the score was, what surface they played on, and what each player's ranking was
+      at the time.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        <code>start_year=2000</code>, <code>end_year=2026</code>, <code>save_dir="data/raw"</code>
+        Year range (e.g. 2000–2025) and a folder to save the files
       </div>
       <div><span class="io-label out">Out</span>
-        DataFrame — ~76,000 rows, columns include
-        <code>winner_id</code>, <code>loser_id</code>, <code>surface</code>,
-        <code>winner_rank</code>, <code>tourney_date</code>, <code>score</code>
+        A table of ~76,000 matches with columns for winner, loser, surface, date, ranking, and score
+      </div>
+    </div>
+  </div>
+
+  <!-- fetch_players -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">fetch.py</span>
+      <code class="fn-name">fetch_players(save_dir)</code>
+    </div>
+    <p class="fn-desc">
+      <strong>What it does:</strong> Downloads the master player directory from the same
+      JeffSackmann archive — a list of every ATP player ever recorded, with their numeric ID,
+      first name, last name, nationality, and date of birth. This table is the
+      "phone book" that other functions use to look up who a player is from their ID number.
+      It is downloaded once and cached locally.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        A folder to save the file
+      </div>
+      <div><span class="io-label out">Out</span>
+        A table of ~55,000 players with their IDs and biographical details
       </div>
     </div>
   </div>
@@ -1023,20 +1141,48 @@
   <!-- fetch_tennisdata_year -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/data/fetch_recent.py</span>
+      <span class="fn-module">fetch_recent.py</span>
       <code class="fn-name">fetch_tennisdata_year(year, save_dir)</code>
     </div>
     <p class="fn-desc">
-      Downloads the full-year ATP Excel file from
-      <code>http://www.tennis-data.co.uk/{year}/{year}.xlsx</code> and caches it locally.
-      Returns the raw DataFrame with tennis-data column names (Winner, Loser, WRank, Surface, …).
+      <strong>What it does:</strong> Downloads the current-year results file from
+      <em>tennis-data.co.uk</em>, a separate website that publishes ATP match results
+      within days of each tournament finishing. JeffSackmann's archive is updated manually
+      and can lag by several weeks — so for the most recent clay-court build-up to Roland Garros
+      (Monte-Carlo, Barcelona, Madrid, Rome) we need this supplementary source.
+      The file is an Excel spreadsheet saved to your hard drive for reuse.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        <code>year=2026</code>, <code>save_dir="data/raw"</code>
+        The year (e.g. 2026) and a folder to save the Excel file
       </div>
       <div><span class="io-label out">Out</span>
-        Raw DataFrame with tennis-data schema (~1,000 rows for a full season)
+        A raw table with column names specific to tennis-data.co.uk (Winner, Loser, WRank, Surface…)
+      </div>
+    </div>
+  </div>
+
+  <!-- build_name_index -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">fetch_recent.py</span>
+      <code class="fn-name">build_name_index(players_df)</code>
+    </div>
+    <p class="fn-desc">
+      <strong>What it does:</strong> Creates two lookup dictionaries from the player master
+      table, so that when we encounter a name like <code>"Sinner J."</code> from tennis-data,
+      we can quickly find his JeffSackmann ID (<code>207989</code>).
+      The <em>primary</em> dictionary maps a (last name, first initial) pair to an ID —
+      the most precise lookup. The <em>secondary</em> dictionary maps just the last name to
+      an ID, for rare surnames where the initial is not needed. Think of it as building two
+      index cards — one more specific than the other — before you start looking players up.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        The players master table from <code>fetch_players()</code>
+      </div>
+      <div><span class="io-label out">Out</span>
+        Two dictionaries: one keyed by (last name, initial) → ID, one by last name → ID
       </div>
     </div>
   </div>
@@ -1044,24 +1190,27 @@
   <!-- resolve_player_id -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/data/fetch_recent.py</span>
+      <span class="fn-module">fetch_recent.py</span>
       <code class="fn-name">resolve_player_id(name, primary, secondary, all_last_names)</code>
     </div>
     <p class="fn-desc">
-      Maps a tennis-data abbreviated name string (e.g. <code>"Sinner J."</code>) to a
-      JeffSackmann numeric player ID. Tries three strategies in order:
-      (1) exact <code>(last_name, first_initial)</code> lookup,
-      (2) unambiguous last-name-only lookup,
-      (3) fuzzy last-name match with cutoff 0.75.
-      Returns <code>-1</code> if all strategies fail — the record is then dropped.
+      <strong>What it does:</strong> Translates a tennis-data name string like
+      <code>"Sinner J."</code> into the numeric player ID used everywhere else in the project.
+      It tries three approaches in order, stopping as soon as one succeeds:
+      <br><br>
+      1. <strong>Exact match</strong> on (last name + first initial) — works for 95%+ of players.<br>
+      2. <strong>Last-name-only</strong> match — used when the surname is unique in the ATP,
+         like "Djokovic".<br>
+      3. <strong>Fuzzy match</strong> — handles typos and accent differences, e.g. "Müller" vs
+         "Muller". If all three fail, the match is discarded rather than guessed — we never
+         inject a wrong ID into the data.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        <code>name</code> — raw string from tennis-data &nbsp;|&nbsp;
-        <code>primary</code>, <code>secondary</code> — dicts from <code>build_name_index()</code>
+        A raw name string from tennis-data and the two lookup dictionaries from <code>build_name_index()</code>
       </div>
       <div><span class="io-label out">Out</span>
-        <code>int</code> — JeffSackmann player_id, or <code>-1</code>
+        A numeric player ID, or −1 if no match could be found
       </div>
     </div>
   </div>
@@ -1069,46 +1218,238 @@
   <!-- map_tennisdata_to_sackmann -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/data/fetch_recent.py</span>
+      <span class="fn-module">fetch_recent.py</span>
       <code class="fn-name">map_tennisdata_to_sackmann(raw_df, players_df, surface_filter, complete_only)</code>
     </div>
     <p class="fn-desc">
-      Converts a raw tennis-data DataFrame into JeffSackmann-compatible format.
-      Filters by surface and completion status, resolves all player names to IDs,
-      renames and casts every column to match the JeffSackmann schema.
-      Drops rows where either player ID could not be resolved.
+      <strong>What it does:</strong> Converts a tennis-data spreadsheet — which uses different
+      column names, a different player naming convention, and different category labels — into
+      the exact same format as the JeffSackmann data. This is the "translation layer" between
+      the two data sources. It filters to only clay matches, drops unfinished matches
+      (retirements, walkovers), resolves all player names to IDs, and renames every column
+      so the result slots seamlessly into the historical dataset.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        raw tennis-data DataFrame &nbsp;|&nbsp; <code>players_df</code> from <code>fetch_players()</code>
-        &nbsp;|&nbsp; <code>surface_filter="Clay"</code>
+        Raw tennis-data table, the players master table, and optionally a surface filter (default: Clay)
       </div>
       <div><span class="io-label out">Out</span>
-        JeffSackmann-schema DataFrame — ready to <code>pd.concat()</code> with historical data
+        A table in JeffSackmann format, ready to be appended to the historical data
       </div>
     </div>
   </div>
 
-  <!-- clean_matches -->
+  <!-- fetch_supplement_clay -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/data/process.py</span>
-      <code class="fn-name">clean_matches(df)</code>
+      <span class="fn-module">fetch_recent.py</span>
+      <code class="fn-name">fetch_supplement_clay(players_df, year, existing_matches, save_dir)</code>
     </div>
     <p class="fn-desc">
-      Standardises a raw match DataFrame: parses <code>tourney_date</code> to datetime,
-      maps surface names to canonical labels (Hard / Clay / Grass / Carpet),
-      fills missing ranks with 9999, flags retirements and walkovers as
-      <code>is_complete=False</code>, sorts chronologically, and assigns a global
-      <code>match_idx</code>. This is the single cleaning step that every downstream
-      module depends on.
+      <strong>What it does:</strong> The single top-level function called by
+      <code>1_fetch_data.py</code> to top up the historical archive with the most recent
+      clay results. It calls <code>fetch_tennisdata_year()</code> to download the file,
+      <code>map_tennisdata_to_sackmann()</code> to convert it, and then removes any matches
+      that are already present in the JeffSackmann data (deduplication) —
+      so no match is counted twice even if both sources covered the same tournament.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        Raw DataFrame from <code>fetch_matches()</code> or <code>pd.concat([...])</code>
+        Players master table, the year to fetch, and the existing JeffSackmann matches (for deduplication)
       </div>
       <div><span class="io-label out">Out</span>
-        Cleaned DataFrame with <code>match_idx</code>, <code>is_complete</code>, typed columns
+        A table of <em>new</em> clay matches not already in the historical archive
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── DATA CLEANING ──────────────────────────────────────── -->
+  <div class="fn-group-header">Data Cleaning &nbsp;— src/data/process.py</div>
+
+  <p>
+    Raw data from the internet is rarely tidy. This module standardises everything —
+    dates, surface names, missing values — so all downstream code can rely on a
+    consistent format.
+  </p>
+
+  <!-- clean_matches -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">process.py</span>
+      <code class="fn-name">clean_matches(df)</code>
+    </div>
+    <p class="fn-desc">
+      <strong>What it does:</strong> Takes the raw combined match table and tidies it up.
+      Specifically: it converts date strings like <code>"20230529"</code> into proper calendar
+      dates; maps inconsistent surface labels to four canonical values (Hard, Clay, Grass, Carpet);
+      fills in a placeholder rank (9999) for players whose ranking is missing; marks matches that
+      ended in a retirement or walkover as "incomplete" so they can be excluded from training;
+      sorts everything chronologically; and numbers every match with a unique index.
+      Every other module in the pipeline depends on this function having been called first.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        The raw combined match table (from <code>fetch_matches()</code> or the merged dataset)
+      </div>
+      <div><span class="io-label out">Out</span>
+        A cleaned, sorted table with proper date types, a completion flag, and a match index
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── FEATURE ENGINEERING ───────────────────────────────── -->
+  <div class="fn-group-header">Feature Engineering &nbsp;— src/features/</div>
+
+  <p>
+    "Features" are the statistics the model uses to decide who is likely to win a match.
+    Raw data only tells us who played and who won — features transform that into meaningful
+    numbers like <em>"how good is this player on clay?"</em> and
+    <em>"has he been on a hot streak lately?"</em>
+    Each module below computes one family of features by replaying every match in
+    chronological order, using only information available <em>before</em> each match was played
+    (no peeking into the future).
+  </p>
+
+  <!-- win_prob -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">elo.py</span>
+      <code class="fn-name">win_prob(rating_a, rating_b)</code>
+    </div>
+    <p class="fn-desc">
+      <strong>What it does:</strong> Given two Elo ratings, calculates the probability that
+      player A beats player B in a single match. The formula is the classic Elo formula
+      borrowed from chess: a player rated 100 points higher than their opponent is expected
+      to win about 64% of the time; 200 points higher gives about 76%.
+      This is the core mathematical engine behind all match predictions.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        Two Elo rating numbers (e.g. 1620.5 and 1480.0)
+      </div>
+      <div><span class="io-label out">Out</span>
+        A probability between 0 and 1 (e.g. 0.72 means player A is 72% likely to win)
+      </div>
+    </div>
+  </div>
+
+  <!-- update_elo -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">elo.py</span>
+      <code class="fn-name">update_elo(r_winner, r_loser, k=32)</code>
+    </div>
+    <p class="fn-desc">
+      <strong>What it does:</strong> After a match is played, updates both players' Elo ratings.
+      The winner gains points and the loser loses the same amount. The number of points exchanged
+      depends on how surprising the result was — beating a much stronger opponent earns far more
+      points than beating someone ranked far below you (exactly as in FIFA player ratings or
+      chess rankings). The <code>k</code> parameter controls how quickly ratings react to new
+      results; k=32 is the standard ATP value.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        The winner's current rating, the loser's current rating, and the k-factor
+      </div>
+      <div><span class="io-label out">Out</span>
+        The new (higher) winner rating and the new (lower) loser rating
+      </div>
+    </div>
+  </div>
+
+  <!-- compute_elo_ratings -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">elo.py</span>
+      <code class="fn-name">compute_elo_ratings(matches)</code>
+    </div>
+    <p class="fn-desc">
+      <strong>What it does:</strong> Walks through all 76,000 matches in date order, starting
+      every player at the default rating of 1500, and applies <code>update_elo()</code> after
+      every single match. It does this twice in parallel — once for a global rating
+      (all surfaces combined) and once for a surface-specific rating (e.g. a separate
+      clay Elo that only updates from clay matches). Crucially, for each match it records
+      the ratings <em>before</em> the match is played, not after — this is what prevents the
+      model from "looking into the future" during training.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        The full cleaned match table, sorted chronologically
+      </div>
+      <div><span class="io-label out">Out</span>
+        The same table with four new columns added: global Elo and surface Elo for both the winner and loser
+      </div>
+    </div>
+  </div>
+
+  <!-- compute_h2h -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">h2h.py</span>
+      <code class="fn-name">compute_h2h(matches)</code>
+    </div>
+    <p class="fn-desc">
+      <strong>What it does:</strong> For every match in the dataset, counts how many times the
+      winner had previously beaten the loser and vice versa — i.e., the head-to-head record
+      going into that match. If they had never played before, the head-to-head win rate defaults
+      to 0.5 (no information either way). This matters because some rivalries are consistently
+      one-sided regardless of rankings — Djokovic vs Federer on clay, for instance.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        The full cleaned match table
+      </div>
+      <div><span class="io-label out">Out</span>
+        The same table with new columns: head-to-head wins, losses, total meetings, and win rate for the winner
+      </div>
+    </div>
+  </div>
+
+  <!-- compute_surface_winrates -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">surface.py</span>
+      <code class="fn-name">compute_surface_winrates(matches, window_days=365)</code>
+    </div>
+    <p class="fn-desc">
+      <strong>What it does:</strong> For each match, looks back over the previous 12 months
+      and calculates each player's win percentage specifically on that match's surface.
+      A player who has won 14 of their last 18 clay matches in the past year scores much
+      higher here than their overall Elo would suggest. This rolling window means the stat
+      always reflects <em>current</em> surface form rather than a career average, which is
+      especially important because clay specialists often peak at different career stages
+      than hard-court players.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        The match table and the window size (default: 365 days)
+      </div>
+      <div><span class="io-label out">Out</span>
+        New columns added: 12-month win rate on the relevant surface, and number of matches in that window, for both players
+      </div>
+    </div>
+  </div>
+
+  <!-- compute_recent_form -->
+  <div class="fn-block">
+    <div class="fn-sig">
+      <span class="fn-module">form.py</span>
+      <code class="fn-name">compute_recent_form(matches, window=20)</code>
+    </div>
+    <p class="fn-desc">
+      <strong>What it does:</strong> Calculates each player's win rate across their last 20
+      matches on any surface. Think of this as a "current form" indicator — it captures
+      whether a player is playing well and injury-free right now, regardless of which surface
+      they have been playing on. A player coming off a 15-5 stretch in their last 20 matches
+      scores much higher than one who has won only 8 of 20. The window is a sliding one:
+      it always looks at the last 20 matches, not a fixed calendar period.
+    </p>
+    <div class="fn-io">
+      <div><span class="io-label in">In</span>
+        The match table and the window size (default: last 20 matches)
+      </div>
+      <div><span class="io-label out">Out</span>
+        New columns added: recent form win rate and number of matches counted, for both players
       </div>
     </div>
   </div>
@@ -1116,21 +1457,23 @@
   <!-- build_features -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/features/builder.py</span>
+      <span class="fn-module">builder.py</span>
       <code class="fn-name">build_features(matches, use_cache, cache_path)</code>
     </div>
     <p class="fn-desc">
-      Orchestrates the full feature-engineering pipeline: runs Elo, H2H, surface win rate,
-      and form modules in order (each adding columns to the DataFrame) then caches the result
-      as a pickle. On subsequent runs <code>use_cache=True</code> loads the pickle directly —
-      saving 5+ minutes of computation.
+      <strong>What it does:</strong> The conductor function that runs all four feature modules
+      (Elo → H2H → surface win rate → recent form) in sequence, each one adding new columns
+      to the dataset. When all four are done it saves the enriched table to disk as a cache file.
+      The next time you run the pipeline, if the cache file exists, this entire step is skipped
+      and the saved file is loaded directly — turning a 5-minute computation into a 2-second
+      file read.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        Cleaned DataFrame from <code>clean_matches()</code>
+        The cleaned match table from <code>clean_matches()</code>
       </div>
       <div><span class="io-label out">Out</span>
-        Enriched DataFrame with 10+ new columns — saved to <code>data/processed/features.pkl</code>
+        The match table enriched with 10+ new feature columns, saved to <code>data/processed/features.pkl</code>
       </div>
     </div>
   </div>
@@ -1138,43 +1481,57 @@
   <!-- symmetrize -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/features/builder.py</span>
+      <span class="fn-module">builder.py</span>
       <code class="fn-name">symmetrize(df)</code>
     </div>
     <p class="fn-desc">
-      Doubles the training dataset by duplicating each match as two rows:
-      one where player 1 is the winner (target=1) and one where the roles are swapped (target=0).
-      Computes difference features (<code>elo_diff</code>, <code>rank_diff</code>, etc.)
-      from the per-player columns. This is what the XGBoost model is trained on.
+      <strong>What it does:</strong> Prepares the dataset for machine learning training by
+      doubling every match. For each match record, it creates two rows: one from the winner's
+      perspective (labelled "player 1 wins") and one from the loser's perspective (labelled
+      "player 1 loses"). It then computes <em>difference features</em> — e.g. Elo of player 1
+      minus Elo of player 2 — which is what the model actually sees.
+      This doubling prevents the model from learning a spurious shortcut ("the first column
+      always wins") and ensures it learns symmetrically from both sides of every matchup.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        Feature DataFrame (~76k rows) from <code>build_features()</code>
+        The enriched feature table (~76,000 rows)
       </div>
       <div><span class="io-label out">Out</span>
-        Symmetrised DataFrame (~152k rows) with <code>MODEL_FEATURES</code> columns + <code>target</code>
+        A doubled training table (~152,000 rows) with difference features and a win/loss label
       </div>
     </div>
   </div>
 
+  <!-- ─── MODEL TRAINING & PREDICTION ──────────────────────── -->
+  <div class="fn-group-header">Model Training &amp; Prediction &nbsp;— src/models/</div>
+
+  <p>
+    These are the functions that learn from the historical data and then apply those lessons
+    to predict future matches.
+  </p>
+
   <!-- train_model -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/models/train.py</span>
+      <span class="fn-module">train.py</span>
       <code class="fn-name">train_model(df, model_path, complete_only)</code>
     </div>
     <p class="fn-desc">
-      Fits an XGBoost binary classifier on the symmetrised DataFrame.
-      Drops incomplete matches (retirements / walkovers) if <code>complete_only=True</code>,
-      removes rows with NaN features, then trains and saves the model with <code>joblib.dump()</code>.
-      Returns the fitted model object.
+      <strong>What it does:</strong> Trains the XGBoost prediction model on the historical
+      symmetrised data. XGBoost is an algorithm that builds hundreds of simple decision trees
+      in sequence — each one learning from the mistakes of the previous ones — and combines
+      them into a single, highly accurate predictor. The model is trained only on matches from
+      2000–2022 (the training period) and then tested on 2023–present data it has never seen,
+      to verify it generalises to new matches. The trained model is saved to disk and reused
+      every time a match probability needs to be calculated.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        Symmetrised DataFrame (train split only — years 2000–2021)
+        The symmetrised training data (years 2000–2022 only)
       </div>
       <div><span class="io-label out">Out</span>
-        <code>XGBClassifier</code> saved to <code>models/xgb_atp.joblib</code>
+        A trained model file saved to <code>models/xgb_atp.joblib</code>
       </div>
     </div>
   </div>
@@ -1182,22 +1539,25 @@
   <!-- PlayerStateTracker.process_all -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/models/predict.py</span>
+      <span class="fn-module">predict.py</span>
       <code class="fn-name">PlayerStateTracker.process_all(matches)</code>
     </div>
     <p class="fn-desc">
-      Replays all 76,000 matches in chronological order, maintaining a live state for
-      each of the 2,640+ players: global Elo, surface Elo (one per surface), ATP rank,
-      form deque (last 20 matches), rolling surface win rate, and head-to-head records
-      against every opponent. After calling this, <code>tracker.get_player_state(pid, surface)</code>
-      returns the player's state as of the last match in the dataset — i.e., right now.
+      <strong>What it does:</strong> Replays every match ever played — all 76,000 of them —
+      in chronological order, updating a "live profile" for each player after every result.
+      By the time it finishes, the tracker holds the most up-to-date stats for each of the
+      2,640+ ATP players ever recorded: their current Elo rating, clay Elo, ATP ranking,
+      form over the last 20 matches, clay win rate over the last year, and head-to-head record
+      against every opponent they have ever faced. These profiles are what power predictions
+      for any future matchup. The entire state is saved to disk so this replay does not
+      need to happen again for the simulation step.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        Cleaned and chronologically sorted full match DataFrame
+        The full cleaned match history in chronological order
       </div>
       <div><span class="io-label out">Out</span>
-        Mutates internal dicts; saved to <code>data/processed/player_states.pkl</code>
+        Internal player state dictionaries, saved to <code>data/processed/player_states.pkl</code>
       </div>
     </div>
   </div>
@@ -1205,45 +1565,57 @@
   <!-- MatchPredictor.predict -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/models/predict.py</span>
+      <span class="fn-module">predict.py</span>
       <code class="fn-name">MatchPredictor.predict(p1, p2, surface, h2h_winrate, h2h_total)</code>
     </div>
     <p class="fn-desc">
-      Takes two player state dicts (from <code>tracker.get_player_state()</code>),
-      builds the 11-feature vector, and returns <code>P(p1 beats p2)</code> on the given surface.
-      The complement <code>1 − p</code> is <code>P(p2 beats p1)</code>.
-      Internally this is just one row passed through the XGBoost model's <code>predict_proba()</code>.
+      <strong>What it does:</strong> Given two player profiles and the surface being played on,
+      returns the probability that player 1 wins the match. Internally it assembles the 11
+      features the model was trained on (Elo difference, surface Elo difference, ranking gap,
+      head-to-head record, form difference, etc.), feeds them to the trained XGBoost model,
+      and returns the output probability. This is the single function called tens of thousands
+      of times during the Monte Carlo simulation — once per matchup per simulation.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        Two player state dicts &nbsp;|&nbsp; surface string &nbsp;|&nbsp; h2h win rate and total
+        Two player profile dicts (from <code>PlayerStateTracker</code>), a surface string, and the head-to-head stats
       </div>
       <div><span class="io-label out">Out</span>
-        <code>float</code> in [0, 1] — win probability for player 1
+        A number between 0 and 1 — the probability that player 1 wins (e.g. 0.63)
       </div>
     </div>
   </div>
 
+  <!-- ─── SIMULATION ──────────────────────────────────────────── -->
+  <div class="fn-group-header">Tournament Simulation &nbsp;— src/rg/</div>
+
+  <p>
+    These functions take the player profiles and match probabilities computed above and use
+    them to simulate the entire Roland Garros tournament thousands of times.
+  </p>
+
   <!-- compute_clay_ratings -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/rg/clay_rating.py</span>
+      <span class="fn-module">clay_rating.py</span>
       <code class="fn-name">compute_clay_ratings(tracker, player_ids)</code>
     </div>
     <p class="fn-desc">
-      Computes a composite clay strength score for each player in the field.
-      Pulls <code>clay_elo</code>, <code>clay_winrate</code>, and <code>form</code>
-      from the tracker, z-score normalises each dimension across the 128-player field,
-      then weights them 45 / 30 / 25. The output is sorted descending — index 0 is the
-      top seed for draw purposes.
+      <strong>What it does:</strong> Produces a single "clay strength score" for each of the
+      128 players in the tournament field. Three statistics contribute to the score —
+      clay Elo (45%), 12-month clay win rate (30%), and overall recent form (25%) —
+      each one first standardised so they are on the same scale before being combined.
+      The result tells us who deserves to be seeded where in the draw: the player at the top
+      of the list gets Seed 1, the player at the bottom gets Seed 128. This composite approach
+      is more reliable than using ATP ranking alone, because the ATP ranking reflects all
+      surfaces, not just clay.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        Fitted <code>PlayerStateTracker</code> &nbsp;|&nbsp; list of 128 player IDs
+        The <code>PlayerStateTracker</code> with current player profiles, and the list of 128 player IDs in the field
       </div>
       <div><span class="io-label out">Out</span>
-        DataFrame (128 rows) with columns: <code>player_id, name, rank, clay_elo,
-        clay_winrate, form, clay_strength</code>
+        A table of 128 players sorted by clay strength, with their scores and component values
       </div>
     </div>
   </div>
@@ -1251,23 +1623,25 @@
   <!-- create_rg_draw -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/rg/draw.py</span>
+      <span class="fn-module">draw.py</span>
       <code class="fn-name">create_rg_draw(player_ids, rng_seed)</code>
     </div>
     <p class="fn-desc">
-      Assigns 128 players to bracket positions following official Grand Slam seeding rules.
-      Seeds 1 and 2 are fixed. Seeds 3–4 draw randomly to the half-boundary slots.
-      Seeds 5–8 draw to quarter boundaries. Seeds 9–16 and 17–32 fill their sections.
-      The remaining 96 unseeded players are shuffled into empty slots.
-      The same <code>rng_seed</code> always produces the same bracket.
+      <strong>What it does:</strong> Assigns all 128 players to their positions in the
+      tournament bracket, following the official Grand Slam seeding rules that Roland Garros
+      uses. Seeds 1 and 2 are placed at opposite ends of the draw so they can only meet in
+      the final. Seeds 3 and 4 are drawn randomly to the semi-final boundary positions.
+      Seeds 5–8 are drawn to quarter-final positions. The remaining 96 unseeded players are
+      shuffled randomly into the remaining slots. Using the same <code>rng_seed</code> value
+      every time ensures the bracket is identical across all 20,000 simulations — only the
+      match outcomes vary, not the draw itself.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        128 player IDs sorted by seeding (seed 1 first) &nbsp;|&nbsp; <code>rng_seed=42</code>
+        128 player IDs sorted by seeding (Seed 1 first), and a random seed number for reproducibility
       </div>
       <div><span class="io-label out">Out</span>
-        List of 128 player IDs in bracket order —
-        match pairs are <code>(draw[0],draw[1])</code>, <code>(draw[2],draw[3])</code>, …
+        A list of 128 player IDs in bracket position order — positions 1&amp;2 play each other, 3&amp;4, and so on
       </div>
     </div>
   </div>
@@ -1275,24 +1649,26 @@
   <!-- RGSimulator.simulate -->
   <div class="fn-block">
     <div class="fn-sig">
-      <span class="fn-module">src/rg/simulator.py</span>
+      <span class="fn-module">simulator.py</span>
       <code class="fn-name">RGSimulator.simulate(draw, n_sim, seed, verbose)</code>
     </div>
     <p class="fn-desc">
-      Runs <code>n_sim</code> independent Monte Carlo simulations of the 128-player bracket.
-      In each simulation, match outcomes are sampled from the XGBoost match probabilities.
-      Round counts are accumulated per player; after all simulations the counts are divided by
-      <code>n_sim</code> to give reach probabilities. Match probabilities are cached so each
-      unique pair is evaluated only once across all 20,000 runs — making the simulation fast.
+      <strong>What it does:</strong> Runs the full tournament 20,000 times. In each simulation,
+      it starts with the same bracket and plays every match by flipping a weighted coin —
+      the weight being the probability from <code>MatchPredictor.predict()</code>.
+      After each simulated final, the winner is recorded. After all 20,000 runs, each player's
+      probability of reaching each round is simply the percentage of simulations where they
+      reached it. To keep the computation fast, match probabilities are cached: if Sinner vs
+      Zverev has been calculated once, the same number is reused every time that matchup
+      appears in subsequent simulations without re-running the model.
     </p>
     <div class="fn-io">
       <div><span class="io-label in">In</span>
-        <code>draw</code> — 128 player IDs in bracket order &nbsp;|&nbsp;
-        <code>n_sim=20_000</code>
+        The bracket (128 player IDs in position order) and the number of simulations (default: 20,000)
       </div>
       <div><span class="io-label out">Out</span>
-        DataFrame (128 rows × 8 round columns: R128, R64, R32, R16, QF, SF, F, W) —
-        saved to <code>data/rg2026_results.pkl</code>
+        A results table (128 rows) showing each player's probability of reaching each round —
+        R128, R64, R32, R16, QF, SF, Final, and winning the title
       </div>
     </div>
   </div>

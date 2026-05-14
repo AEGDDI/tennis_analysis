@@ -7,6 +7,7 @@ import os
 import pickle
 
 import joblib
+import pandas as pd
 
 from src.models.predict import MatchPredictor, PlayerStateTracker
 from src.rg.clay_rating import compute_clay_ratings, get_seeding_order
@@ -27,8 +28,16 @@ if __name__ == "__main__":
     print(f"  {len(tracker.name):,} players loaded")
 
     print("\nSelecting top 128 clay players by ATP rank...")
+    cutoff = tracker._last_date - pd.DateOffset(months=6)
+    EXCLUDED_NAMES = {"alcaraz"}
+
     ranked_ids = sorted(
-        [pid for pid, r in tracker.rank.items() if r < 9999],
+        [
+            pid for pid, r in tracker.rank.items()
+            if r < 9999
+            and tracker.last_match.get(pid, pd.Timestamp.min) >= cutoff
+            and not any(exc in tracker.name.get(pid, "").lower() for exc in EXCLUDED_NAMES)
+        ],
         key=lambda pid: tracker.rank[pid],
     )[:DRAW_SIZE]
 
