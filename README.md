@@ -49,7 +49,7 @@ Four tabs:
 - **Compare Players** — side-by-side probability comparison across all rounds
 - **Clay Ratings** — composite clay strength score used to seed the draw
 
-![dashboard preview](docs/preview.png)
+![dashboard preview](docs/dashboard.png)
 
 ---
 
