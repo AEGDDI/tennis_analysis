@@ -30,7 +30,9 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://www.tennis-data.co.uk/2026/2026.xlsx\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://www.tennis-data.co.uk/2026/2026.xlsx\")",
       "Bash(curl -s -L \"http://www.tennis-data.co.uk/2026/2026.xlsx\" -o /tmp/tennisdata_2026.xlsx)",
-      "Bash(curl -s -L \"http://www.tennis-data.co.uk/2026/2026.xlsx\" -o \"C:/Users/ALESSANDRO/AppData/Local/Temp/tennisdata_2026.xlsx\")"
+      "Bash(curl -s -L \"http://www.tennis-data.co.uk/2026/2026.xlsx\" -o \"C:/Users/ALESSANDRO/AppData/Local/Temp/tennisdata_2026.xlsx\")",
+      "Bash(New-Item *)",
+      "Bash(pip show *)"
     ]
   }
 }
