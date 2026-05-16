@@ -32,7 +32,10 @@
       "Bash(curl -s -L \"http://www.tennis-data.co.uk/2026/2026.xlsx\" -o /tmp/tennisdata_2026.xlsx)",
       "Bash(curl -s -L \"http://www.tennis-data.co.uk/2026/2026.xlsx\" -o \"C:/Users/ALESSANDRO/AppData/Local/Temp/tennisdata_2026.xlsx\")",
       "Bash(New-Item *)",
-      "Bash(pip show *)"
+      "Bash(pip show *)",
+      "Bash(Get-ChildItem \"C:\\\\Users\\\\ALESSANDRO\\\\Documents\\\\GitHub\\\\tennis_analysis\\\\data\" -Recurse)",
+      "Bash(Select-Object Name, Length)",
+      "PowerShell(Get-Item *)"
     ]
   }
 }

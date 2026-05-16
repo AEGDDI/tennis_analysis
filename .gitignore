@@ -1,6 +1,5 @@
 data/raw/
 data/processed/
-data/rg2026_results.pkl
 models/
 __pycache__/
 *.py[cod]
