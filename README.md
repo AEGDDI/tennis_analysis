@@ -49,7 +49,7 @@ Four tabs:
 - **Compare Players** — side-by-side probability comparison across all rounds
 - **Clay Ratings** — composite clay strength score used to seed the draw
 
-![dashboard preview](docs/dashboard.png)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://tennisanalysis-rmehhgyrsp47ozy7ddzmx8.streamlit.app/)
 
 ---
 
